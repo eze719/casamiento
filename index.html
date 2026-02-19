@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!-- Para las fotos de fondo: guarda tus fotos en esta carpeta con los nombres:
+     yo.jpg = tu foto (se muestra a la izquierda)
+     novia.jpg = foto de tu novia (se muestra a la derecha)
+     Formato: JPG, PNG o GIF. Si usas otros nombres, edita las líneas con "url('yo.jpg')" y "url('novia.jpg')" -->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Te quieres casar conmigo?</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      overflow: hidden;
+    }
+    
+    .pantalla {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      animation: aparecer 0.6s ease-out;
+    }
+    
+    .pantalla.activa {
+      display: flex;
+    }
+    
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    h1 {
+      color: white;
+      font-size: 2.2rem;
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      max-width: 90%;
+    }
+    
+    .botones {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1rem;
+      position: relative;
+      min-height: 120px;
+    }
+    
+    .btn {
+      padding: 1rem 2rem;
+      font-size: 1.3rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    
+    .btn-si {
+      background: linear-gradient(135deg, #11998e, #38ef7d);
+      color: white;
+      box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+    }
+    
+    .btn-no {
+      background: linear-gradient(135deg, #eb3349, #f45c43);
+      color: white;
+      position: absolute;
+      user-select: none;
+      touch-action: none;
+    }
+    
+    .felicitacion h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .felicitacion p {
+      color: white;
+      font-size: 1.5rem;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .pantalla-felicidades {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+    }
+    
+    .fondo-fotos {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      display: flex;
+    }
+    
+    .fondo-fotos::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+    
+    .foto-fondo {
+      flex: 1;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .foto-fondo.yo {
+      background-image: url('yo.jpg');
+    }
+    
+    .foto-fondo.novia {
+      background-image: url('novia.jpg');
+    }
+    
+    .pantalla-felicidades h1,
+    .pantalla-felicidades p {
+      position: relative;
+      z-index: 2;
+    }
+    
+    .corazones {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 2;
+    }
+    
+    .corazon {
+      position: absolute;
+      font-size: 2rem;
+      animation: flotar 3s ease-in-out infinite;
+      opacity: 0.6;
+    }
+    
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="pantalla activa" id="pantalla-pregunta">
+    <h1>¿Te quieres casar conmigo? 💍</h1>
+    <div class="botones" id="contenedor-botones">
+      <button class="btn btn-si" id="btn-si">¡Sí! 💕</button>
+      <button class="btn btn-no" id="btn-no">No</button>
+    </div>
+  </div>
+  
+  <div class="pantalla pantalla-felicidades felicitacion" id="pantalla-felicidades">
+    <div class="fondo-fotos">
+      <div class="foto-fondo yo"></div>
+      <div class="foto-fondo novia"></div>
+    </div>
+    <h1>¡Felicidades! 🎉</h1>
+    <p>¡El 23 te casas! 💒❤️</p>
+    <div class="corazones" id="corazones"></div>
+  </div>
+
+  <script>
+    const btnSi = document.getElementById('btn-si');
+    const btnNo = document.getElementById('btn-no');
+    const pantallaPregunta = document.getElementById('pantalla-pregunta');
+    const pantallaFelicidades = document.getElementById('pantalla-felicidades');
+    const contenedorBotones = document.getElementById('contenedor-botones');
+    const corazonesContainer = document.getElementById('corazones');
+
+    btnSi.addEventListener('click', () => {
+      pantallaPregunta.classList.remove('activa');
+      pantallaFelicidades.classList.add('activa');
+      crearCorazones();
+    });
+
+    btnNo.addEventListener('mouseover', moverBoton);
+    btnNo.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moverBoton();
+    });
+    btnNo.addEventListener('click', moverBoton);
+
+    function moverBoton() {
+      const btnRect = btnNo.getBoundingClientRect();
+      const maxX = window.innerWidth - btnRect.width - 40;
+      const maxY = window.innerHeight - btnRect.height - 40;
+      
+      const nuevoX = Math.random() * Math.max(0, maxX) + 20;
+      const nuevoY = Math.random() * Math.max(0, maxY) + 20;
+      
+      btnNo.style.position = 'fixed';
+      btnNo.style.left = nuevoX + 'px';
+      btnNo.style.top = nuevoY + 'px';
+      btnNo.style.zIndex = '1000';
+    }
+
+    function crearCorazones() {
+      const emojis = ['❤️', '💕', '💖', '💗', '💘'];
+      
+      for (let i = 0; i < 15; i++) {
+        const corazon = document.createElement('span');
+        corazon.className = 'corazon';
+        corazon.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        corazon.style.left = Math.random() * 100 + '%';
+        corazon.style.top = Math.random() * 100 + '%';
+        corazon.style.animationDelay = Math.random() * 2 + 's';
+        corazonesContainer.appendChild(corazon);
+      }
+    }
+  </script>
+</body>
+</html>
